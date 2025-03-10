@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý tài khoản - Estudy</title>
+    <style>
+      :root {
+        --primary-color: #3f51b5;
+        --secondary-color: #1a237e;
+        --text-color: #333;
+        --shadow-color: rgba(63, 81, 181, 0.2);
+        --success-color: #2ecc71;
+        --error-color: #e74c3c;
+        --bg-color: #f5f7fa;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, var(--bg-color) 0%, #c3cfe2 100%);
+        color: var(--text-color);
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      .admin-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px var(--shadow-color);
+      }
+
+      h1 {
+        color: var(--secondary-color);
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .form-section,
+      .search-section {
+        margin-bottom: 2rem;
+      }
+
+      .form-section input,
+      .form-section select,
+      .search-section input {
+        width: 100%;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .form-section input:focus,
+      .form-section select:focus,
+      .search-section input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+      }
+
+      .form-section button {
+        width: 100%;
+        padding: 0.9rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        margin-top: 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s;
+      }
+
+      .form-section button:hover {
+        background: var(--secondary-color);
+      }
+
+      .message {
+        text-align: center;
+        margin-top: 1rem;
+        font-weight: 500;
+      }
+
+      .success {
+        color: var(--success-color);
+      }
+
+      .error {
+        color: var(--error-color);
+      }
+
+      .user-list {
+        margin-top: 2rem;
+      }
+
+      .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      .user-table th,
+      .user-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .user-table th {
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+      }
+
+      .user-table tr:hover {
+        background: #f9f9f9;
+      }
+
+      .user-table button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+      }
+
+      .extend-btn {
+        background: #3498db;
+        color: white;
+      }
+
+      .extend-btn:hover {
+        background: #2980b9;
+      }
+
+      .delete-btn {
+        background: var(--error-color);
+        color: white;
+      }
+
+      .delete-btn:hover {
+        background: #c0392b;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .pagination button {
+        padding: 0.5rem 1rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .pagination button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .pagination button:hover:not(:disabled) {
+        background: var(--secondary-color);
+      }
+
+      a.back-link {
+        display: block;
+        text-align: center;
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-top: 2rem;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      a.back-link:hover {
+        color: var(--secondary-color);
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        .admin-container {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .user-table th,
+        .user-table td {
+          padding: 0.5rem;
+          font-size: 0.85rem;
+        }
+
+        .user-table button {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <h1>Quản lý tài khoản Estudy</h1>
+
+      <div class="form-section">
+        <form id="createUserForm" onsubmit="createUser(event)">
+          <input
+            type="text"
+            id="newUsername"
+            placeholder="Tên đăng nhập"
+            required
+          />
+          <input
+            type="password"
+            id="newPassword"
+            placeholder="Mật khẩu"
+            required
+          />
+          <select id="expiration" required>
+            <option value="">Chọn thời hạn</option>
+            <option value="1">1 ngày</option>
+            <option value="7">7 ngày</option>
+            <option value="30">30 ngày</option>
+          </select>
+          <button type="submit">Tạo tài khoản</button>
+        </form>
+        <div id="message" class="message"></div>
+      </div>
+
+      <div class="search-section">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Tìm kiếm tên đăng nhập..."
+          onkeyup="filterUsers()"
+        />
+      </div>
+
+      <div class="user-list">
+        <table class="user-table" id="userTable">
+          <thead>
+            <tr>
+              <th>Tên đăng nhập</th>
+              <th>Hết hạn</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="userList"></tbody>
+        </table>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <a href="index.html" class="back-link">Quay lại trang chính</a>
+    </div>
+
+    <script>
+      let users = JSON.parse(localStorage.getItem("users")) || {};
+      const itemsPerPage = 10;
+      let currentPage = 1;
+      let filteredUsers = [];
+
+      function loadUserList() {
+        filteredUsers = Object.entries(users).map(([username, data]) => ({
+          username,
+          ...data,
+        }));
+        displayUsers();
+      }
+
+      function displayUsers() {
+        const userList = document.getElementById("userList");
+        userList.innerHTML = "";
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedUsers = filteredUsers.slice(start, end);
+
+        paginatedUsers.forEach((user) => {
+          const tr = document.createElement("tr");
+          const expires = user.expires
+            ? new Date(user.expires).toLocaleString()
+            : "Không hết hạn";
+          tr.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${expires}</td>
+                    <td>
+                        <button class="extend-btn" onclick="extendUser('${user.username}')">Gia hạn</button>
+                        <button class="delete-btn" onclick="deleteUser('${user.username}')">Xóa</button>
+                    </td>
+                `;
+          userList.appendChild(tr);
+        });
+
+        updatePagination();
+      }
+
+      function updatePagination() {
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = `
+                <button onclick="changePage(${currentPage - 1})" ${
+          currentPage === 1 ? "disabled" : ""
+        }>Trước</button>
+                <span>Trang ${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${
+          currentPage === totalPages ? "disabled" : ""
+        }>Sau</button>
+            `;
+      }
+
+      function changePage(page) {
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        if (page >= 1 && page <= totalPages) {
+          currentPage = page;
+          displayUsers();
+        }
+      }
+
+      function createUser(event) {
+        event.preventDefault();
+        const username = document.getElementById("newUsername").value.trim();
+        const password = document.getElementById("newPassword").value;
+        const expirationDays = parseInt(
+          document.getElementById("expiration").value
+        );
+
+        if (users[username]) {
+          document.getElementById("message").innerHTML =
+            '<div class="error">Tên đăng nhập đã tồn tại!</div>';
+          return;
+        }
+
+        const expires = new Date();
+        expires.setDate(expires.getDate() + expirationDays);
+        users[username] = {
+          password: password,
+          expires: expires.toISOString(),
+        };
+        localStorage.setItem("users", JSON.stringify(users));
+        document.getElementById("message").innerHTML =
+          '<div class="success">Tạo tài khoản thành công!</div>';
+        document.getElementById("createUserForm").reset();
+        loadUserList();
+        setTimeout(
+          () => (document.getElementById("message").innerHTML = ""),
+          3000
+        );
+      }
+
+      function extendUser(username) {
+        const days = parseInt(prompt("Nhập số ngày gia hạn (1, 7, 30):", "7"));
+        if (![1, 7, 30].includes(days)) {
+          alert("Vui lòng nhập 1, 7 hoặc 30 ngày!");
+          return;
+        }
+
+        const expires = new Date(
+          users[username].expires &&
+          new Date(users[username].expires) > new Date()
+            ? users[username].expires
+            : Date.now()
+        );
+        expires.setDate(expires.getDate() + days);
+        users[username].expires = expires.toISOString();
+        localStorage.setItem("users", JSON.stringify(users));
+        loadUserList();
+        document.getElementById("message").innerHTML =
+          '<div class="success">Gia hạn thành công!</div>';
+        setTimeout(
+          () => (document.getElementById("message").innerHTML = ""),
+          3000
+        );
+      }
+
+      function deleteUser(username) {
+        if (confirm(`Bạn có chắc muốn xóa tài khoản "${username}" không?`)) {
+          delete users[username];
+          localStorage.setItem("users", JSON.stringify(users));
+          loadUserList();
+          document.getElementById("message").innerHTML =
+            '<div class="success">Xóa tài khoản thành công!</div>';
+          setTimeout(
+            () => (document.getElementById("message").innerHTML = ""),
+            3000
+          );
+        }
+      }
+
+      function filterUsers() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        filteredUsers = Object.entries(users)
+          .filter(([username]) => username.toLowerCase().includes(searchTerm))
+          .map(([username, data]) => ({ username, ...data }));
+        currentPage = 1;
+        displayUsers();
+      }
+
+      document.addEventListener("DOMContentLoaded", loadUserList);
+    </script>
+  </body>
+</html>
